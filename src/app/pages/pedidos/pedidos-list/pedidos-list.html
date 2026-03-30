@@ -1,139 +1,250 @@
-<div class="list-page">
+<div class="pedidos-page">
 
-  <!-- Toolbar -->
-  <div class="page-toolbar">
-    <h2>Pedidos</h2>
-    <button mat-raised-button color="primary" (click)="nuevo()">
-      <mat-icon>add</mat-icon> Nuevo Pedido
+  <!-- ── Page Header ── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1 class="page-title">Pedidos</h1>
+      <p class="page-subtitle">Gestiona y da seguimiento a tus pedidos</p>
+    </div>
+    <button class="btn-primary" (click)="nuevo()">
+      <mat-icon>add</mat-icon>
+      Nuevo Pedido
     </button>
   </div>
 
-  <!-- Filtros -->
-  <div class="filter-bar">
-    <div class="row g-2 align-items-end flex-wrap">
-      <div class="col-auto">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Desde</mat-label>
-          <input matInput [matDatepicker]="pickerDesde" [(ngModel)]="fechaDesde">
-          <mat-datepicker-toggle matIconSuffix [for]="pickerDesde"></mat-datepicker-toggle>
-          <mat-datepicker #pickerDesde></mat-datepicker>
-        </mat-form-field>
+  <!-- ── Stats row ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--blue">
+        <mat-icon>receipt_long</mat-icon>
       </div>
-      <div class="col-auto">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Hasta</mat-label>
-          <input matInput [matDatepicker]="pickerHasta" [(ngModel)]="fechaHasta">
-          <mat-datepicker-toggle matIconSuffix [for]="pickerHasta"></mat-datepicker-toggle>
-          <mat-datepicker #pickerHasta></mat-datepicker>
-        </mat-form-field>
+      <div class="stat-info">
+        <span class="stat-value">{{ total() }}</span>
+        <span class="stat-label">Total pedidos</span>
       </div>
-      <div class="col-auto">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width:200px">
-          <mat-label>Cliente</mat-label>
-          <input matInput [(ngModel)]="nombreCliente" (keyup.enter)="buscar()">
-        </mat-form-field>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--green">
+        <mat-icon>check_circle</mat-icon>
       </div>
-      <div class="col-auto">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width:140px">
-          <mat-label>Estado</mat-label>
-          <mat-select [(ngModel)]="estado">
-            <mat-option value="">Todos</mat-option>
-            <mat-option value="A">Activo</mat-option>
-            <mat-option value="E">Anulado</mat-option>
-            <mat-option value="U">Atendido</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <div class="stat-info">
+        <span class="stat-value">{{ countEstado('A') }}</span>
+        <span class="stat-label">Activos</span>
       </div>
-      <div class="col-auto">
-        <button mat-raised-button color="primary" (click)="buscar()">
-          <mat-icon>search</mat-icon> Buscar
-        </button>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--indigo">
+        <mat-icon>task_alt</mat-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ countEstado('U') }}</span>
+        <span class="stat-label">Atendidos</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--red">
+        <mat-icon>cancel</mat-icon>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ countEstado('E') }}</span>
+        <span class="stat-label">Anulados</span>
       </div>
     </div>
   </div>
 
-  <!-- Tabla -->
-  <div class="table-container">
+  <!-- ── Filter Card ── -->
+  <div class="card filter-card">
+    <div class="filter-card-header">
+      <mat-icon>filter_list</mat-icon>
+      <span>Filtros de búsqueda</span>
+    </div>
+    <div class="filter-fields">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Desde</mat-label>
+        <input matInput [matDatepicker]="pickerDesde" [(ngModel)]="fechaDesde">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerDesde"></mat-datepicker-toggle>
+        <mat-datepicker #pickerDesde></mat-datepicker>
+      </mat-form-field>
 
-    @if (loading()) {
-      <div class="loading-overlay">
-        <mat-spinner diameter="48"></mat-spinner>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Hasta</mat-label>
+        <input matInput [matDatepicker]="pickerHasta" [(ngModel)]="fechaHasta">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerHasta"></mat-datepicker-toggle>
+        <mat-datepicker #pickerHasta></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-cliente">
+        <mat-label>Cliente</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="nombreCliente" (keyup.enter)="buscar()" placeholder="Buscar por nombre...">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-estado">
+        <mat-label>Estado</mat-label>
+        <mat-select [(ngModel)]="estado">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="A">Activo</mat-option>
+          <mat-option value="E">Anulado</mat-option>
+          <mat-option value="U">Atendido</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button class="btn-primary" (click)="buscar()">
+        <mat-icon>search</mat-icon>
+        Buscar
+      </button>
+      <button class="btn-ghost" (click)="limpiarFiltros()">
+        <mat-icon>clear</mat-icon>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Table Card ── -->
+  <div class="card table-card">
+    <div class="table-card-header">
+      <div class="table-card-title">
+        <span>Lista de Pedidos</span>
+        @if (total() > 0) {
+          <span class="count-badge">{{ total() }}</span>
+        }
       </div>
-    }
+    </div>
 
-    <mat-table [dataSource]="items()" class="mat-elevation-z1 w-100">
+    <div class="table-wrapper" [class.is-loading]="loading()">
 
-      <ng-container matColumnDef="numDoc">
-        <mat-header-cell *matHeaderCellDef>Nro Doc</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.numDocumento ?? '—' }}</mat-cell>
-      </ng-container>
+      @if (loading()) {
+        <div class="loading-overlay">
+          <div class="spinner-container">
+            <mat-spinner diameter="36"></mat-spinner>
+            <span>Cargando...</span>
+          </div>
+        </div>
+      }
 
-      <ng-container matColumnDef="cliente">
-        <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
-        <mat-cell *matCellDef="let row" class="col-cliente">{{ row.clienteNombre }}</mat-cell>
-      </ng-container>
+      <table mat-table [dataSource]="items()" class="pedidos-table">
 
-      <ng-container matColumnDef="fechaPedido">
-        <mat-header-cell *matHeaderCellDef>Fecha Pedido</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.fechaPedido | date:'dd/MM/yyyy' }}</mat-cell>
-      </ng-container>
+        <!-- Nro Doc -->
+        <ng-container matColumnDef="numDoc">
+          <th mat-header-cell *matHeaderCellDef>NRO DOC</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="doc-num">#{{ row.numDocumento ?? '—' }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="fechaEntrega">
-        <mat-header-cell *matHeaderCellDef>Fecha Entrega</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.fechaEntrega | date:'dd/MM/yyyy' }}</mat-cell>
-      </ng-container>
+        <!-- Cliente -->
+        <ng-container matColumnDef="cliente">
+          <th mat-header-cell *matHeaderCellDef>CLIENTE</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="cliente-cell">
+              <div class="cliente-avatar">{{ row.clienteNombre?.charAt(0) ?? '?' }}</div>
+              <span class="cliente-nombre">{{ row.clienteNombre }}</span>
+            </div>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="estado">
-        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
-        <mat-cell *matCellDef="let row">
-          <span class="badge-estado" [ngClass]="estadoClass(row.estado)">
-            {{ estadoLabel(row.estado) }}
-          </span>
-        </mat-cell>
-      </ng-container>
+        <!-- Fecha Pedido -->
+        <ng-container matColumnDef="fechaPedido">
+          <th mat-header-cell *matHeaderCellDef>FECHA PEDIDO</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="date-cell">{{ row.fechaPedido | date:'dd MMM yyyy' }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="total">
-        <mat-header-cell *matHeaderCellDef class="text-end">Total</mat-header-cell>
-        <mat-cell *matCellDef="let row" class="text-end fw-semibold">
-          {{ row.importeTotal | number:'1.2-2' }}
-        </mat-cell>
-      </ng-container>
+        <!-- Fecha Entrega -->
+        <ng-container matColumnDef="fechaEntrega">
+          <th mat-header-cell *matHeaderCellDef>ENTREGA</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="date-cell">{{ row.fechaEntrega | date:'dd MMM yyyy' }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="acciones">
-        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
-        <mat-cell *matCellDef="let row">
-          <button mat-icon-button color="primary" matTooltip="Ver / Editar" (click)="editar(row)">
-            <mat-icon>{{ row.estado === 'A' ? 'edit' : 'visibility' }}</mat-icon>
+        <!-- Estado -->
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>ESTADO</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="badge" [ngClass]="'badge-' + row.estado">
+              <span class="badge-dot"></span>
+              {{ estadoLabel(row.estado) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Total -->
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef class="col-total">TOTAL</th>
+          <td mat-cell *matCellDef="let row" class="col-total">
+            <span class="amount">S/ {{ row.importeTotal | number:'1.2-2' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="col-actions">ACCIONES</th>
+          <td mat-cell *matCellDef="let row" class="col-actions">
+            <div class="actions-group">
+              <button class="action-btn action-btn--edit"
+                      [matTooltip]="row.estado === 'A' ? 'Editar' : 'Ver detalle'"
+                      (click)="editar(row)">
+                <mat-icon>{{ row.estado === 'A' ? 'edit' : 'visibility' }}</mat-icon>
+              </button>
+              @if (row.estado === 'A') {
+                <button class="action-btn action-btn--convert"
+                        matTooltip="Convertir a Venta"
+                        (click)="convertir(row)">
+                  <mat-icon>swap_horiz</mat-icon>
+                </button>
+                <button class="action-btn action-btn--cancel"
+                        matTooltip="Anular pedido"
+                        (click)="anular(row)">
+                  <mat-icon>block</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            [class.row-anulado]="row.estado === 'E'"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+            <div class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>No se encontraron pedidos</p>
+              <span>Prueba ajustando los filtros de búsqueda</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Paginador -->
+      <div class="custom-paginator">
+        <span class="paginator-info">
+          Mostrando {{ pageStart() }}–{{ pageEnd() }} de {{ total() }} resultados
+        </span>
+        <div class="paginator-controls">
+          <select class="page-size-select" [value]="pageSize()" (change)="onPageSizeChange($event)">
+            <option value="10">10 por página</option>
+            <option value="20">20 por página</option>
+            <option value="50">50 por página</option>
+          </select>
+          <button class="pag-btn" [disabled]="page() <= 1" (click)="goPage(page() - 1)">
+            <mat-icon>chevron_left</mat-icon>
           </button>
-          @if (row.estado === 'A') {
-            <button mat-icon-button color="warn" matTooltip="Anular" (click)="anular(row)">
-              <mat-icon>cancel</mat-icon>
-            </button>
-            <button mat-icon-button style="color:#388e3c" matTooltip="Convertir a Venta"
-                    (click)="convertir(row)">
-              <mat-icon>swap_horiz</mat-icon>
+          @for (p of pageNumbers(); track p) {
+            <button class="pag-btn pag-num" [class.active]="p === page()" (click)="goPage(p)">
+              {{ p }}
             </button>
           }
-        </mat-cell>
-      </ng-container>
+          <button class="pag-btn" [disabled]="page() >= totalPages()" (click)="goPage(page() + 1)">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
 
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-          No se encontraron pedidos
-        </td>
-      </tr>
-    </mat-table>
-
-    <mat-paginator
-      [length]="total()"
-      [pageSize]="pageSize()"
-      [pageSizeOptions]="[10, 20, 50]"
-      showFirstLastButtons
-      (page)="onPageChange($event)">
-    </mat-paginator>
-
+    </div>
   </div>
+
 </div>

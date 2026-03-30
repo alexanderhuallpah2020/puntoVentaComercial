@@ -1,24 +1,63 @@
-<mat-sidenav-container class="shell-container">
+<div class="app-layout">
 
-  <mat-sidenav mode="side" opened class="sidebar">
-    <div class="sidebar-header">
-      <span class="logo-text">SCOP POS</span>
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <mat-icon>point_of_sale</mat-icon>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">SCOP POS</span>
+        <span class="logo-sub">Sistema de Ventas</span>
+      </div>
     </div>
 
-    <mat-nav-list>
-      <a mat-list-item routerLink="/pedidos" routerLinkActive="active-link">
-        <mat-icon matListItemIcon>receipt_long</mat-icon>
-        <span matListItemTitle>Pedidos</span>
-      </a>
-      <a mat-list-item class="disabled-link">
-        <mat-icon matListItemIcon>point_of_sale</mat-icon>
-        <span matListItemTitle>Ventas</span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <p class="nav-label">MENÚ</p>
 
-  <mat-sidenav-content class="main-content">
+      <a class="nav-item" routerLink="/pedidos" routerLinkActive="active">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Pedidos</span>
+      </a>
+      <a class="nav-item disabled">
+        <mat-icon>point_of_sale</mat-icon>
+        <span>Ventas</span>
+      </a>
+      <a class="nav-item disabled">
+        <mat-icon>people</mat-icon>
+        <span>Clientes</span>
+      </a>
+
+      <p class="nav-label" style="margin-top:24px">INVENTARIO</p>
+      <a class="nav-item disabled">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Artículos</span>
+      </a>
+      <a class="nav-item disabled">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Reportes</span>
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">DC</div>
+        <div class="user-info">
+          <span class="user-name">DataConsulting</span>
+          <span class="user-role">Administrador</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Main content ── -->
+  <main class="main-content">
     <router-outlet />
-  </mat-sidenav-content>
+  </main>
 
-</mat-sidenav-container>
+</div>
