@@ -1,0 +1,37 @@
+<div class="van-shell">
+
+  <div class="van-header">
+    <div class="van-header__icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <div>
+      <h2 class="van-title">Anular Venta</h2>
+      <p class="van-sub">{{ data.numDoc }}</p>
+    </div>
+  </div>
+
+  <div class="van-body">
+    <p class="van-msg">
+      Esta acción <strong>no se puede deshacer</strong>. La venta quedará en estado
+      <strong>Anulada</strong> y se revertirán los movimientos de stock asociados.
+    </p>
+
+    <div class="van-field">
+      <label class="van-label">Motivo de anulación <span class="van-opt">(opcional)</span></label>
+      <textarea class="van-textarea" [(ngModel)]="motivo" rows="3"
+                placeholder="Describe el motivo de la anulación…"></textarea>
+    </div>
+  </div>
+
+  <div class="van-footer">
+    <button class="van-btn van-btn--ghost" (click)="cancelar()" [disabled]="saving()">
+      Cancelar
+    </button>
+    <button class="van-btn van-btn--danger" (click)="confirmar()" [disabled]="saving()">
+      @if (saving()) { <mat-spinner diameter="16"></mat-spinner> }
+      @else { <mat-icon>block</mat-icon> }
+      Confirmar Anulación
+    </button>
+  </div>
+
+</div>

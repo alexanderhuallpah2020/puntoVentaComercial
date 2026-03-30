@@ -31,7 +31,7 @@ export class ClientesList implements OnInit {
   items    = signal<ClienteResumen[]>([]);
   total    = signal(0);
   page     = signal(1);
-  pageSize = signal(20);
+  pageSize = signal(10);
 
   // Filter fields
   nombreCliente = '';

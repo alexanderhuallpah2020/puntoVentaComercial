@@ -1,0 +1,254 @@
+<div class="vl-page">
+
+  <!-- ── Header ── -->
+  <div class="vl-header">
+    <div>
+      <h1 class="vl-title">Ventas</h1>
+      <p class="vl-sub">Consulta y gestiona las ventas registradas</p>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="vl-stats">
+    <div class="vl-stat">
+      <div class="vl-stat__icon vl-stat__icon--blue"><mat-icon>receipt_long</mat-icon></div>
+      <div class="vl-stat__info">
+        <span class="vl-stat__val">{{ total() }}</span>
+        <span class="vl-stat__lbl">Total registros</span>
+      </div>
+    </div>
+    <div class="vl-stat">
+      <div class="vl-stat__icon vl-stat__icon--indigo"><mat-icon>attach_money</mat-icon></div>
+      <div class="vl-stat__info">
+        <span class="vl-stat__val">S/ {{ totalImporte() | number:'1.2-2' }}</span>
+        <span class="vl-stat__lbl">Total en página</span>
+      </div>
+    </div>
+    <div class="vl-stat">
+      <div class="vl-stat__icon vl-stat__icon--green"><mat-icon>check_circle</mat-icon></div>
+      <div class="vl-stat__info">
+        <span class="vl-stat__val">{{ countActivas() }}</span>
+        <span class="vl-stat__lbl">Activas</span>
+      </div>
+    </div>
+    <div class="vl-stat">
+      <div class="vl-stat__icon vl-stat__icon--red"><mat-icon>cancel</mat-icon></div>
+      <div class="vl-stat__info">
+        <span class="vl-stat__val">{{ countAnuladas() }}</span>
+        <span class="vl-stat__lbl">Anuladas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="card vl-filters">
+    <div class="vl-filters__head">
+      <mat-icon>filter_list</mat-icon>
+      <span>Filtros de búsqueda</span>
+    </div>
+
+    <div class="vl-filters__row">
+      <!-- Fecha Desde / Hasta via mat-datepicker -->
+      <div class="vl-ff">
+        <label class="vl-fl">Desde</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="vl-date-field">
+          <input matInput [matDatepicker]="pickerD" [(ngModel)]="fechaDesde">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerD"></mat-datepicker-toggle>
+          <mat-datepicker #pickerD></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="vl-ff">
+        <label class="vl-fl">Hasta</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="vl-date-field">
+          <input matInput [matDatepicker]="pickerH" [(ngModel)]="fechaHasta">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerH"></mat-datepicker-toggle>
+          <mat-datepicker #pickerH></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="vl-ff vl-ff--grow">
+        <label class="vl-fl">Cliente</label>
+        <div class="vl-iw vl-iw--prefix">
+          <mat-icon class="vl-prefix">search</mat-icon>
+          <input class="vl-input" [(ngModel)]="nombreCliente"
+                 (keyup.enter)="buscar()" placeholder="Buscar por nombre…">
+        </div>
+      </div>
+
+      <div class="vl-ff">
+        <label class="vl-fl">Serie</label>
+        <div class="vl-iw">
+          <input class="vl-input vl-input--sm" [(ngModel)]="numSerieA"
+                 (keyup.enter)="buscar()" placeholder="F001…">
+        </div>
+      </div>
+
+      <div class="vl-ff">
+        <label class="vl-fl">Nro. Doc.</label>
+        <div class="vl-iw">
+          <input class="vl-input vl-input--sm" [(ngModel)]="numDocumento"
+                 type="number" (keyup.enter)="buscar()" placeholder="000001">
+        </div>
+      </div>
+
+      <div class="vl-ff">
+        <label class="vl-fl">Tipo Doc.</label>
+        <select class="vl-select" [(ngModel)]="idTipoDocumento">
+          <option value="">Todos</option>
+          @for (t of tiposDoc; track t.id) {
+            <option [value]="t.id">{{ t.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="vl-ff">
+        <label class="vl-fl">Estado</label>
+        <select class="vl-select" [(ngModel)]="estado">
+          <option value="">Todos</option>
+          <option value="A">Activa</option>
+          <option value="E">Anulada</option>
+        </select>
+      </div>
+
+      <div class="vl-filters__btns">
+        <button class="btn-primary" (click)="buscar()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+        <button class="btn-ghost" (click)="limpiar()">
+          <mat-icon>clear</mat-icon> Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="card vl-table-card">
+    <div class="vl-table-head-bar">
+      <span class="vl-table-title">
+        Lista de Ventas
+        @if (total() > 0) { <span class="vl-badge">{{ total() }}</span> }
+      </span>
+    </div>
+
+    <div class="vl-table-wrap" [class.is-loading]="loading()">
+
+      @if (loading()) {
+        <div class="vl-overlay">
+          <mat-spinner diameter="36"></mat-spinner>
+          <span>Cargando…</span>
+        </div>
+      }
+
+      <!-- Column header -->
+      <div class="vl-thead">
+        <span class="vth vth--doc">DOCUMENTO</span>
+        <span class="vth vth--cli">CLIENTE</span>
+        <span class="vth vth--fecha">FECHA</span>
+        <span class="vth vth--tipo">TIPO</span>
+        <span class="vth vth--est">ESTADO</span>
+        <span class="vth vth--total">TOTAL</span>
+        <span class="vth vth--acc">ACCIONES</span>
+      </div>
+
+      <!-- Rows -->
+      @if (items().length === 0 && !loading()) {
+        <div class="vl-empty">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No se encontraron ventas</p>
+          <span>Prueba ajustando los filtros de búsqueda</span>
+        </div>
+      }
+
+      @for (row of items(); track row.idVenta) {
+        <div class="vl-row" [class.vl-row--anulada]="row.estado === 'E'">
+
+          <div class="vth vth--doc vl-cell">
+            <div class="vl-nrodoc">
+              <span class="vl-nrodoc__serie">{{ row.numSerieA ?? '—' }}</span>
+              <span class="vl-nrodoc__num">{{ row.numeroDocumentoA ?? row.idVenta }}</span>
+            </div>
+          </div>
+
+          <div class="vth vth--cli vl-cell">
+            <div class="vl-cliente">
+              <div class="vl-avatar">{{ (row.clienteNombre || '?')[0].toUpperCase() }}</div>
+              <span class="vl-cli-nombre">{{ row.clienteNombre }}</span>
+            </div>
+          </div>
+
+          <div class="vth vth--fecha vl-cell">
+            <span class="vl-fecha">{{ row.fechaEmision | date:'dd MMM yyyy' }}</span>
+          </div>
+
+          <div class="vth vth--tipo vl-cell">
+            <span class="vl-tipo-tag">{{ tipoDocLabel(row.idTipoDocumento) }}</span>
+          </div>
+
+          <div class="vth vth--est vl-cell">
+            <span class="vl-estado-badge"
+                  [class.vl-estado-badge--activa]="row.estado === 'A'"
+                  [class.vl-estado-badge--anulada]="row.estado === 'E'">
+              <span class="vl-estado-badge__dot"></span>
+              {{ estadoLabel(row.estado) }}
+            </span>
+          </div>
+
+          <div class="vth vth--total vl-cell vl-cell--right">
+            <span class="vl-importe">S/ {{ row.importeTotal | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="vth vth--acc vl-cell vl-cell--right">
+            <div class="vl-actions">
+              <button class="vl-act-btn vl-act-btn--view"
+                      matTooltip="Ver detalle"
+                      (click)="verDetalle(row)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              @if (row.estado === 'A') {
+                <button class="vl-act-btn vl-act-btn--sunat"
+                        matTooltip="Enviar a SUNAT"
+                        (click)="enviarSunat(row)">
+                  <mat-icon>cloud_upload</mat-icon>
+                </button>
+                <button class="vl-act-btn vl-act-btn--cancel"
+                        matTooltip="Anular venta"
+                        (click)="anular(row)">
+                  <mat-icon>block</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- Paginador -->
+      @if (total() > 0) {
+        <div class="vl-paginator">
+          <span class="vl-pag-info">
+            Mostrando {{ pageStart() }}–{{ pageEnd() }} de {{ total() }} resultados
+          </span>
+          <div class="vl-pag-ctrls">
+            <select class="vl-page-sz" [value]="pageSize()" (change)="onPageSizeChange($event)">
+              <option value="10">10 / pág</option>
+              <option value="20">20 / pág</option>
+              <option value="50">50 / pág</option>
+            </select>
+            <button class="vl-pag-btn" [disabled]="page() <= 1" (click)="goPage(page() - 1)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            @for (p of pageNumbers(); track p) {
+              <button class="vl-pag-btn vl-pag-num" [class.active]="p === page()" (click)="goPage(p)">{{ p }}</button>
+            }
+            <button class="vl-pag-btn" [disabled]="page() >= totalPages()" (click)="goPage(page() + 1)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

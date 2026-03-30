@@ -1,0 +1,52 @@
+.van-shell {
+  background: #fff; border-radius: 12px; overflow: hidden;
+  width: 100%;
+}
+
+.van-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 24px; border-bottom: 1px solid #E2E8F0;
+}
+.van-header__icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: #FEF3C7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  mat-icon { color: #D97706; font-size: 24px; width: 24px; height: 24px; }
+}
+.van-title { margin: 0; font-size: 17px; font-weight: 700; color: #0F172A; }
+.van-sub   { margin: 3px 0 0; font-size: 12.5px; color: #94A3B8; }
+
+.van-body  { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.van-msg   { margin: 0; font-size: 13.5px; color: #475569; line-height: 1.6; }
+.van-field { display: flex; flex-direction: column; gap: 6px; }
+.van-label { font-size: 12px; font-weight: 600; color: #64748B; }
+.van-opt   { font-weight: 400; color: #94A3B8; }
+.van-textarea {
+  width: 100%; padding: 10px 12px; resize: vertical; min-height: 80px;
+  font-family: 'Inter', system-ui, sans-serif; font-size: 13.5px; color: #334155;
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; outline: none;
+  box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s;
+  &::placeholder { color: #CBD5E1; }
+  &:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); caret-color: #334155; }
+}
+
+.van-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 24px; border-top: 1px solid #E2E8F0;
+}
+.van-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 42px; padding: 0 20px; border-radius: 8px;
+  font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, box-shadow 0.15s;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  --mdc-circular-progress-active-indicator-color: #fff;
+  &[disabled] { opacity: 0.5; pointer-events: none; }
+  &--ghost {
+    background: transparent; color: #475569; border: 1px solid #E2E8F0;
+    &:hover { background: #F8FAFC; }
+  }
+  &--danger {
+    background: #DC2626; color: #fff; border: 1px solid #DC2626;
+    &:hover { background: #B91C1C; box-shadow: 0 4px 12px rgba(220,38,38,0.35); }
+  }
+}

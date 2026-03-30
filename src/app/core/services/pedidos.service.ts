@@ -31,7 +31,7 @@ export class PedidosService {
     if (params.numDocumento != null) p = p.set('numDocumento', params.numDocumento);
     if (params.estado)            p = p.set('estado', params.estado);
     p = p.set('page', params.page ?? 1);
-    p = p.set('pageSize', params.pageSize ?? 20);
+    p = p.set('pageSize', params.pageSize ?? 10);
     return this.http.get<SearchPedidosResponse>(this.base, { params: p });
   }
 

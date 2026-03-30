@@ -39,7 +39,7 @@ export class PedidosList implements OnInit {
   items    = signal<PedidoListItem[]>([]);
   total    = signal(0);
   page     = signal(1);
-  pageSize = signal(20);
+  pageSize = signal(10);
 
   fechaDesde: Date = primerDiaMes();
   fechaHasta: Date = ultimoDiaMes();

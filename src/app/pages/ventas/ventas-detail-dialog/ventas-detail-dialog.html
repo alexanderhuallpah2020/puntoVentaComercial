@@ -1,0 +1,152 @@
+<div class="vd-shell">
+
+  <!-- ── Header ── -->
+  <div class="vd-header">
+    <div class="vd-header__left">
+      <div class="vd-header__icon">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+      @if (venta(); as v) {
+        <div>
+          <h2 class="vd-header__title">{{ tipoDocLabel(v.idTipoDocumento) }} {{ nroDoc(v) }}</h2>
+          <p class="vd-header__sub">{{ v.fechaEmision | date:'dd MMMM yyyy' }} · Vendedor {{ v.vendedor }}</p>
+        </div>
+      } @else {
+        <h2 class="vd-header__title">Detalle de Venta</h2>
+      }
+    </div>
+    <div class="vd-header__right">
+      @if (venta(); as v) {
+        <span class="vd-estado" [class.vd-estado--activa]="v.estado === 'A'"
+                                [class.vd-estado--anulada]="v.estado === 'E'">
+          <span class="vd-estado__dot"></span>{{ estadoLabel(v.estado) }}
+        </span>
+        @if (v.estado === 'A') {
+          <button class="vd-sunat-btn" (click)="enviarSunat()" [disabled]="enviando()">
+            @if (enviando()) { <mat-spinner diameter="14"></mat-spinner> }
+            @else { <mat-icon>cloud_upload</mat-icon> }
+            Enviar SUNAT
+          </button>
+        }
+      }
+      <button class="vd-close" (click)="cerrar()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="vd-body">
+
+    @if (loading()) {
+      <div class="vd-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando detalle…</span>
+      </div>
+    }
+
+    @if (venta(); as v) {
+
+      <!-- ── Resumen de totales ── -->
+      <div class="vd-totales-row">
+        <div class="vd-tot-card">
+          <span class="vd-tot-card__lbl">Base Afecta</span>
+          <span class="vd-tot-card__val">S/ {{ v.valorVenta | number:'1.2-2' }}</span>
+        </div>
+        <div class="vd-tot-card">
+          <span class="vd-tot-card__lbl">IGV ({{ igvPct(v) }}%)</span>
+          <span class="vd-tot-card__val">S/ {{ v.igv | number:'1.2-2' }}</span>
+        </div>
+        @if (v.valorExonerado > 0) {
+          <div class="vd-tot-card">
+            <span class="vd-tot-card__lbl">Exonerado</span>
+            <span class="vd-tot-card__val">S/ {{ v.valorExonerado | number:'1.2-2' }}</span>
+          </div>
+        }
+        @if ((v.importeDescuento ?? 0) > 0) {
+          <div class="vd-tot-card">
+            <span class="vd-tot-card__lbl">Descuento</span>
+            <span class="vd-tot-card__val vd-tot-card__val--red">- S/ {{ v.importeDescuento | number:'1.2-2' }}</span>
+          </div>
+        }
+        <div class="vd-tot-card vd-tot-card--total">
+          <span class="vd-tot-card__lbl">TOTAL</span>
+          <span class="vd-tot-card__val">S/ {{ v.importeTotal | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- ── Ítems ── -->
+      <div class="vd-section">
+        <div class="vd-section__head">
+          <mat-icon class="vd-section__icon">inventory_2</mat-icon>
+          <span class="vd-section__title">Detalle de Ítems</span>
+          <span class="vd-count-badge">{{ v.detalles.length }}</span>
+        </div>
+
+        <div class="vd-items-table">
+          <div class="vd-items-head">
+            <span class="vic vic--num">#</span>
+            <span class="vic vic--desc">Descripción</span>
+            <span class="vic vic--qty">Cant.</span>
+            <span class="vic vic--price">P. Unit.</span>
+            <span class="vic vic--dsc">Desc.</span>
+            <span class="vic vic--sub">Subtotal</span>
+            <span class="vic vic--exon">Exon.</span>
+          </div>
+          @for (d of v.detalles; track d.correlativo) {
+            <div class="vd-item-row">
+              <span class="vic vic--num vd-item-num">{{ d.correlativo }}</span>
+              <div class="vic vic--desc">
+                <span class="vd-item-desc">{{ d.descripcionArticulo || '(sin descripción)' }}</span>
+                @if (d.idArticulo) {
+                  <span class="vd-item-cod">Cód: {{ d.idArticulo }}</span>
+                }
+              </div>
+              <span class="vic vic--qty vd-item-num">{{ d.cantidad | number:'1.0-3' }}</span>
+              <span class="vic vic--price vd-item-num">{{ d.precioUnitario | number:'1.2-2' }}</span>
+              <span class="vic vic--dsc vd-item-num">
+                {{ d.importeDescuento > 0 ? (d.importeDescuento | number:'1.2-2') : '—' }}
+              </span>
+              <span class="vic vic--sub vd-item-sub">{{ d.valorVenta | number:'1.2-2' }}</span>
+              <span class="vic vic--exon vd-item-exon">
+                @if (d.flagExonerado) { <mat-icon class="vd-exon-icon">check</mat-icon> }
+                @else { <span class="vd-item-num">—</span> }
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── Pagos ── -->
+      <div class="vd-section">
+        <div class="vd-section__head">
+          <mat-icon class="vd-section__icon">payments</mat-icon>
+          <span class="vd-section__title">Forma de Pago</span>
+        </div>
+        <div class="vd-pagos">
+          @for (p of v.pagos; track p.idFormaPago) {
+            <div class="vd-pago-row">
+              <div class="vd-pago-icon"><mat-icon>credit_card</mat-icon></div>
+              <span class="vd-pago-label">{{ formaPagoLabel(p.idFormaPago) }}</span>
+              <span class="vd-pago-importe">S/ {{ p.importe | number:'1.2-2' }}</span>
+            </div>
+          }
+          @if ((v.importeVuelto ?? 0) > 0) {
+            <div class="vd-pago-row vd-pago-row--vuelto">
+              <div class="vd-pago-icon"><mat-icon>money</mat-icon></div>
+              <span class="vd-pago-label">Vuelto</span>
+              <span class="vd-pago-importe">S/ {{ v.importeVuelto | number:'1.2-2' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    }
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="vd-footer">
+    <button class="vd-btn-close" (click)="cerrar()">Cerrar</button>
+  </div>
+
+</div>

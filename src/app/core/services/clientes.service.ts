@@ -29,7 +29,7 @@ export class ClientesService {
     if (opts.idPais)        params = params.set('idPais',        opts.idPais);
     if (opts.idDocIdentidad) params = params.set('idDocIdentidad', opts.idDocIdentidad);
     params = params.set('page',     opts.page     ?? 1);
-    params = params.set('pageSize', opts.pageSize ?? 20);
+    params = params.set('pageSize', opts.pageSize ?? 10);
     return this.http.get<SearchClientesResponse>(this.base, { params });
   }
 
