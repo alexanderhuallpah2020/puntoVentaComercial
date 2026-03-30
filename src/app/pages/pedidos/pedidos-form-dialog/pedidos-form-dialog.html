@@ -1,249 +1,284 @@
-<div class="dialog-shell">
+<div class="pd-shell">
 
-  <!-- Header -->
-  <div class="dialog-header">
-    <div class="dialog-header-left">
-      <div class="dialog-icon">
-        <mat-icon>{{ isEdit ? 'edit_note' : 'add_circle' }}</mat-icon>
+  <!-- ── HEADER ── -->
+  <div class="pd-header">
+    <div class="pd-header__left">
+      <div class="pd-header__icon">
+        <mat-icon>{{ isEdit ? 'edit_note' : 'add_circle_outline' }}</mat-icon>
       </div>
       <div>
-        <h2 class="dialog-title">{{ isEdit ? 'Editar Pedido' : 'Nuevo Pedido' }}</h2>
-        <p class="dialog-subtitle">{{ isEdit ? 'Modifica los datos del pedido' : 'Completa los datos del nuevo pedido' }}</p>
+        <h2 class="pd-header__title">{{ isEdit ? 'Editar Pedido' : 'Nuevo Pedido' }}</h2>
+        <p class="pd-header__sub">{{ isEdit ? 'Modifica los datos del pedido' : 'Completa los datos para crear el pedido' }}</p>
       </div>
     </div>
-    <button class="dialog-close" (click)="cancelar()" [disabled]="saving()">
+    <button class="pd-header__close" (click)="cancelar()" [disabled]="saving()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
-  <!-- Content -->
-  <div class="dialog-body">
+  <!-- ── BODY ── -->
+  <div class="pd-body">
 
     @if (loading()) {
-      <div class="dialog-loading">
-        <mat-spinner diameter="40"></mat-spinner>
-        <span>Cargando datos...</span>
+      <div class="pd-loading">
+        <mat-spinner diameter="44"></mat-spinner>
+        <span>Cargando datos del pedido…</span>
       </div>
     } @else {
+
       <form [formGroup]="form" autocomplete="off">
 
-        <!-- ── Sección: Datos del pedido (cliente + pedido en una sola sección) ── -->
-        <div class="form-section">
-          <div class="section-label">Datos del pedido</div>
+        <!-- ══════════════════════════════════════════
+             SECCIÓN 1 — Datos del cliente
+        ══════════════════════════════════════════ -->
+        <section class="pd-section">
+          <div class="pd-section__header">
+            <mat-icon class="pd-section__icon">person</mat-icon>
+            <span class="pd-section__title">Datos del Cliente</span>
+          </div>
 
-          <!-- Fila 1: Cliente (2/3) + Tipo Cliente (1/3) -->
-          <div class="form-grid form-grid--3 row-gap">
-            <div class="col-span-2">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Cliente *</mat-label>
-                <mat-icon matPrefix class="prefix-icon">person_search</mat-icon>
-                <input matInput formControlName="clienteNombre"
+          <!-- Fila 1: Cliente + Tipo Cliente -->
+          <div class="pd-grid pd-grid--6-4">
+            <div class="pd-field">
+              <label class="pd-label">Cliente <span class="pd-required">*</span></label>
+              <div class="pd-input-wrap pd-input-wrap--prefix">
+                <mat-icon class="pd-input-prefix">person_search</mat-icon>
+                <input class="pd-input"
+                       formControlName="clienteNombre"
                        [matAutocomplete]="autoCliente"
-                       placeholder="Buscar por nombre o RUC...">
-                <mat-autocomplete #autoCliente
-                                  (optionSelected)="selectCliente($event.option.value)">
-                  @for (c of clienteOpts(); track c.idCliente) {
-                    <mat-option [value]="c">
-                      <div class="autocomplete-option">
-                        <span class="opt-name">{{ c.nombre }}</span>
-                        <span class="opt-doc">{{ c.tipoDocumento }}: {{ c.numDocumento }}</span>
-                      </div>
-                    </mat-option>
-                  }
-                  @if (clienteOpts().length === 0) {
-                    <mat-option disabled>
-                      <span class="opt-empty">Escribe para buscar clientes...</span>
-                    </mat-option>
-                  }
-                </mat-autocomplete>
-              </mat-form-field>
+                       placeholder="Buscar por nombre o RUC…">
+              </div>
+              <mat-autocomplete #autoCliente (optionSelected)="selectCliente($event.option.value)">
+                @for (c of clienteOpts(); track c.idCliente) {
+                  <mat-option [value]="c">
+                    <div class="pd-ac-option">
+                      <span class="pd-ac-option__name">{{ c.nombre }}</span>
+                      <span class="pd-ac-option__doc">{{ c.tipoDocumento }}: {{ c.numDocumento }}</span>
+                    </div>
+                  </mat-option>
+                }
+                @if (clienteOpts().length === 0) {
+                  <mat-option disabled>
+                    <span class="pd-ac-option__empty">Escribe para buscar clientes…</span>
+                  </mat-option>
+                }
+              </mat-autocomplete>
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Tipo Cliente</mat-label>
-              <mat-select formControlName="idTipoCliente">
+            <div class="pd-field">
+              <label class="pd-label">Tipo de Cliente</label>
+              <mat-select class="pd-select" formControlName="idTipoCliente">
                 <mat-option [value]="1">Regular</mat-option>
                 <mat-option [value]="2">Mayorista</mat-option>
                 <mat-option [value]="3">VIP</mat-option>
               </mat-select>
-            </mat-form-field>
+            </div>
           </div>
 
-          <!-- Fila 2: Vendedor + Fecha Pedido + Fecha Entrega + Moneda -->
-          <div class="form-grid form-grid--4 row-gap">
-            <mat-form-field appearance="outline">
-              <mat-label>Vendedor (ID) *</mat-label>
-              <mat-icon matPrefix class="prefix-icon">badge</mat-icon>
-              <input matInput type="number" formControlName="idTrabajador">
-            </mat-form-field>
+          <!-- Fila 2: Vendedor · Fecha Pedido · Fecha Entrega · Moneda -->
+          <div class="pd-grid pd-grid--4">
+            <div class="pd-field">
+              <label class="pd-label">Vendedor (ID) <span class="pd-required">*</span></label>
+              <div class="pd-input-wrap pd-input-wrap--prefix">
+                <mat-icon class="pd-input-prefix">badge</mat-icon>
+                <input class="pd-input" type="number" formControlName="idTrabajador" placeholder="ID…">
+              </div>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha Pedido *</mat-label>
-              <input matInput [matDatepicker]="pickerP" formControlName="fechaPedido">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerP"></mat-datepicker-toggle>
-              <mat-datepicker #pickerP></mat-datepicker>
-            </mat-form-field>
+            <div class="pd-field">
+              <label class="pd-label">Fecha Pedido <span class="pd-required">*</span></label>
+              <div class="pd-input-wrap pd-input-wrap--suffix">
+                <input class="pd-input" [matDatepicker]="pickerP" formControlName="fechaPedido" placeholder="dd/mm/aaaa">
+                <mat-datepicker-toggle class="pd-input-suffix" [for]="pickerP"></mat-datepicker-toggle>
+                <mat-datepicker #pickerP></mat-datepicker>
+              </div>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Fecha Entrega *</mat-label>
-              <input matInput [matDatepicker]="pickerE" formControlName="fechaEntrega">
-              <mat-datepicker-toggle matIconSuffix [for]="pickerE"></mat-datepicker-toggle>
-              <mat-datepicker #pickerE></mat-datepicker>
-            </mat-form-field>
+            <div class="pd-field">
+              <label class="pd-label">Fecha Entrega <span class="pd-required">*</span></label>
+              <div class="pd-input-wrap pd-input-wrap--suffix">
+                <input class="pd-input" [matDatepicker]="pickerE" formControlName="fechaEntrega" placeholder="dd/mm/aaaa">
+                <mat-datepicker-toggle class="pd-input-suffix" [for]="pickerE"></mat-datepicker-toggle>
+                <mat-datepicker #pickerE></mat-datepicker>
+              </div>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Moneda</mat-label>
-              <mat-select formControlName="idTipoMoneda">
+            <div class="pd-field">
+              <label class="pd-label">Moneda</label>
+              <mat-select class="pd-select" formControlName="idTipoMoneda">
                 <mat-option [value]="1">S/ Soles</mat-option>
                 <mat-option [value]="2">$ Dólares</mat-option>
               </mat-select>
-            </mat-form-field>
+            </div>
           </div>
 
-          <!-- Fila 3: Forma de Pago + Observaciones + Orden de Compra -->
-          <div class="form-grid form-grid--4 row-gap">
-            <mat-form-field appearance="outline">
-              <mat-label>Forma de Pago</mat-label>
-              <mat-select formControlName="idFormaPago">
+          <!-- Fila 3: Forma de Pago · Observaciones · Orden de Compra -->
+          <div class="pd-grid pd-grid--3-6-3">
+            <div class="pd-field">
+              <label class="pd-label">Forma de Pago</label>
+              <mat-select class="pd-select" formControlName="idFormaPago">
                 <mat-option [value]="1">Contado</mat-option>
                 <mat-option [value]="2">Crédito</mat-option>
                 <mat-option [value]="3">Tarjeta</mat-option>
               </mat-select>
-            </mat-form-field>
-
-            <div class="col-span-2">
-              <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Observaciones</mat-label>
-                <input matInput formControlName="observaciones">
-              </mat-form-field>
             </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Orden de Compra</mat-label>
-              <input matInput formControlName="ordenCompra">
-            </mat-form-field>
+            <div class="pd-field">
+              <label class="pd-label">Observaciones</label>
+              <div class="pd-input-wrap">
+                <input class="pd-input" formControlName="observaciones" placeholder="Notas del pedido…">
+              </div>
+            </div>
+
+            <div class="pd-field">
+              <label class="pd-label">Orden de Compra</label>
+              <div class="pd-input-wrap">
+                <input class="pd-input" formControlName="ordenCompra" placeholder="OC-…">
+              </div>
+            </div>
           </div>
 
-          <!-- Fila 4: IGV toggle -->
-          <div class="igv-toggle">
-            <mat-checkbox formControlName="flagIgvAfecto" (change)="recalcular()">
-              Los precios ingresados <strong>incluyen IGV</strong>
-            </mat-checkbox>
+          <!-- IGV checkbox -->
+          <div class="pd-igv-row">
+            <label class="pd-checkbox-label">
+              <span class="pd-checkbox-box" [class.pd-checkbox-box--checked]="form.value.flagIgvAfecto">
+                <input type="checkbox" formControlName="flagIgvAfecto" (change)="recalcular()">
+                <mat-icon>check</mat-icon>
+              </span>
+              <span>Los precios ingresados <strong>incluyen IGV</strong></span>
+            </label>
           </div>
-        </div>
+        </section>
 
-        <!-- ── Sección: Ítems ── -->
-        <div class="form-section">
-          <div class="section-label with-action">
-            <span>Ítems del pedido</span>
+        <!-- ══════════════════════════════════════════
+             SECCIÓN 2 — Ítems del pedido
+        ══════════════════════════════════════════ -->
+        <section class="pd-section pd-section--items">
+          <div class="pd-section__header">
+            <mat-icon class="pd-section__icon">inventory_2</mat-icon>
+            <span class="pd-section__title">Ítems del Pedido</span>
             @if (detallesArray.length > 0) {
-              <span class="items-count">{{ detallesArray.length }} ítem{{ detallesArray.length > 1 ? 's' : '' }}</span>
+              <span class="pd-badge">{{ detallesArray.length }} ítem{{ detallesArray.length !== 1 ? 's' : '' }}</span>
             }
-            <button type="button" class="btn-add-item" (click)="agregarDetalle()">
+            <button type="button" class="pd-btn-add-item" (click)="agregarDetalle()">
               <mat-icon>add</mat-icon> Agregar ítem
             </button>
           </div>
 
           @if (detallesArray.length === 0) {
-            <div class="items-empty">
-              <mat-icon>shopping_cart</mat-icon>
-              <p>Sin ítems. Agrega al menos uno para continuar.</p>
+            <div class="pd-items-empty">
+              <mat-icon>shopping_cart_checkout</mat-icon>
+              <div>
+                <p>Sin ítems en el pedido</p>
+                <span>Haz clic en "Agregar ítem" para comenzar</span>
+              </div>
             </div>
           }
 
-          <!-- Tabla de ítems: header + rows en un wrapper con overflow controlado -->
           @if (detallesArray.length > 0) {
-            <div class="items-table">
-
-              <div class="items-header">
-                <span class="ih-num">#</span>
-                <span class="ih-art">Cód. Art.</span>
-                <span class="ih-uni">Unidad</span>
-                <span class="ih-desc">Descripción</span>
-                <span class="ih-qty">Cant.</span>
-                <span class="ih-price">P. Unit.</span>
-                <span class="ih-dsc">Desc.</span>
-                <span class="ih-total">Subtotal</span>
-                <span class="ih-exon">Exon.</span>
-                <span class="ih-del"></span>
+            <div class="pd-table-wrap">
+              <!-- Header -->
+              <div class="pd-table-head">
+                <span class="col-num">#</span>
+                <span class="col-art">Cód. Art.</span>
+                <span class="col-uni">Unidad</span>
+                <span class="col-desc">Descripción</span>
+                <span class="col-qty">Cant.</span>
+                <span class="col-price">P. Unit.</span>
+                <span class="col-dsc">Desc.</span>
+                <span class="col-total">Subtotal</span>
+                <span class="col-exon">Exon.</span>
+                <span class="col-del"></span>
               </div>
 
-              <div formArrayName="detalles" class="items-list">
+              <!-- Rows -->
+              <div formArrayName="detalles" class="pd-table-body">
                 @for (ctrl of detallesArray.controls; track $index; let i = $index) {
-                  <div [formGroupName]="i" class="item-row">
-                    <span class="item-index">{{ i + 1 }}</span>
+                  <div [formGroupName]="i" class="pd-row">
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-articulo">
-                      <mat-label>Cód.</mat-label>
-                      <input matInput type="number" formControlName="idArticulo">
-                    </mat-form-field>
+                    <span class="col-num pd-row-num">{{ i + 1 }}</span>
 
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-unidad">
-                      <mat-label>Unid.</mat-label>
-                      <input matInput type="number" formControlName="idUnidad">
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-descripcion">
-                      <mat-label>Descripción</mat-label>
-                      <input matInput formControlName="descripcionArticulo">
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-qty">
-                      <mat-label>Cant.</mat-label>
-                      <input matInput type="number" formControlName="cantidad" (change)="onLineChange(i)">
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-price">
-                      <mat-label>P.Unit.</mat-label>
-                      <input matInput type="number" step="0.01" formControlName="precioUnd" (change)="onLineChange(i)">
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-desc">
-                      <mat-label>Desc.</mat-label>
-                      <input matInput type="number" step="0.01" formControlName="descuento" (change)="onLineChange(i)">
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-total">
-                      <mat-label>Subtotal</mat-label>
-                      <input matInput type="number" formControlName="precioVenta" readonly>
-                    </mat-form-field>
-
-                    <div class="item-exon">
-                      <mat-checkbox formControlName="flagExonerado" (change)="recalcular()">
-                        Exon.
-                      </mat-checkbox>
+                    <div class="col-art">
+                      <input class="pd-cell-input" type="number"
+                             formControlName="idArticulo" placeholder="—">
                     </div>
 
-                    <button type="button" class="item-delete" matTooltip="Eliminar" (click)="eliminarDetalle(i)">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
+                    <div class="col-uni">
+                      <input class="pd-cell-input" type="number"
+                             formControlName="idUnidad" placeholder="—">
+                    </div>
+
+                    <div class="col-desc">
+                      <input class="pd-cell-input pd-cell-input--desc"
+                             formControlName="descripcionArticulo" placeholder="Descripción del artículo…">
+                    </div>
+
+                    <div class="col-qty">
+                      <input class="pd-cell-input pd-cell-input--num"
+                             type="number" formControlName="cantidad"
+                             (change)="onLineChange(i)" placeholder="0">
+                    </div>
+
+                    <div class="col-price">
+                      <input class="pd-cell-input pd-cell-input--num"
+                             type="number" step="0.01" formControlName="precioUnd"
+                             (change)="onLineChange(i)" placeholder="0.00">
+                    </div>
+
+                    <div class="col-dsc">
+                      <input class="pd-cell-input pd-cell-input--num"
+                             type="number" step="0.01" formControlName="descuento"
+                             (change)="onLineChange(i)" placeholder="0.00">
+                    </div>
+
+                    <div class="col-total">
+                      <span class="pd-cell-total">
+                        {{ (+ctrl.value.precioVenta || 0) | number:'1.2-2' }}
+                      </span>
+                    </div>
+
+                    <div class="col-exon">
+                      <label class="pd-mini-check">
+                        <input type="checkbox" formControlName="flagExonerado" (change)="recalcular()">
+                        <span class="pd-mini-check__box"></span>
+                      </label>
+                    </div>
+
+                    <div class="col-del">
+                      <button type="button" class="pd-row-del" matTooltip="Eliminar fila"
+                              (click)="eliminarDetalle(i)">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </div>
+
                   </div>
                 }
               </div>
-
             </div>
           }
-        </div>
+        </section>
 
-        <!-- ── Totales ── -->
+        <!-- ══════════════════════════════════════════
+             SECCIÓN 3 — Totales
+        ══════════════════════════════════════════ -->
         @if (detallesArray.length > 0) {
-          <div class="totals-section">
-            <div class="totals-box">
-              <div class="total-row">
+          <div class="pd-totals">
+            <div class="pd-totals__box">
+              <div class="pd-totals__row">
                 <span>Base afecta</span>
                 <span>S/ {{ valorAfecto | number:'1.2-2' }}</span>
               </div>
-              <div class="total-row">
+              <div class="pd-totals__row">
                 <span>IGV (18%)</span>
                 <span>S/ {{ igv | number:'1.2-2' }}</span>
               </div>
               @if (valorExonerado > 0) {
-                <div class="total-row">
+                <div class="pd-totals__row">
                   <span>Exonerado</span>
                   <span>S/ {{ valorExonerado | number:'1.2-2' }}</span>
                 </div>
               }
-              <div class="total-row final">
+              <div class="pd-totals__row pd-totals__row--final">
                 <span>TOTAL A PAGAR</span>
                 <span>S/ {{ importeTotal | number:'1.2-2' }}</span>
               </div>
@@ -253,17 +288,16 @@
 
       </form>
     }
-
   </div>
 
-  <!-- Footer -->
-  <div class="dialog-footer">
-    <button class="btn-ghost" (click)="cancelar()" [disabled]="saving()">
+  <!-- ── FOOTER ── -->
+  <div class="pd-footer">
+    <button class="pd-btn pd-btn--ghost" (click)="cancelar()" [disabled]="saving()">
       Cancelar
     </button>
-    <button class="btn-primary" (click)="guardar()" [disabled]="saving() || loading()">
+    <button class="pd-btn pd-btn--primary" (click)="guardar()" [disabled]="saving() || loading()">
       @if (saving()) {
-        <mat-spinner diameter="16"></mat-spinner>
+        <mat-spinner diameter="18"></mat-spinner>
       } @else {
         <mat-icon>{{ isEdit ? 'save' : 'add_circle' }}</mat-icon>
       }
