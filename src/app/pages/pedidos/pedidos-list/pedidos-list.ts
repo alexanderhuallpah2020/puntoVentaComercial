@@ -115,8 +115,9 @@ export class PedidosList implements OnInit {
 
   nuevo() {
     const ref = this.dialog.open(PedidosFormDialog, {
-      width: '960px',
-      maxHeight: '92vh',
+      width: '1040px',
+      maxWidth: '98vw',
+      maxHeight: '94vh',
       disableClose: true,
       panelClass: 'scop-dialog',
     });
@@ -125,8 +126,9 @@ export class PedidosList implements OnInit {
 
   editar(item: PedidoListItem) {
     const ref = this.dialog.open(PedidosFormDialog, {
-      width: '960px',
-      maxHeight: '92vh',
+      width: '1040px',
+      maxWidth: '98vw',
+      maxHeight: '94vh',
       disableClose: true,
       panelClass: 'scop-dialog',
       data: { idPedido: item.idPedido },

@@ -27,11 +27,12 @@
     } @else {
       <form [formGroup]="form" autocomplete="off">
 
-        <!-- ── Sección: Cliente ── -->
+        <!-- ── Sección: Datos del pedido (cliente + pedido en una sola sección) ── -->
         <div class="form-section">
-          <div class="section-label">Información del cliente</div>
-          <div class="form-grid form-grid--3">
+          <div class="section-label">Datos del pedido</div>
 
+          <!-- Fila 1: Cliente (2/3) + Tipo Cliente (1/3) -->
+          <div class="form-grid form-grid--3 row-gap">
             <div class="col-span-2">
               <mat-form-field appearance="outline" class="w-100">
                 <mat-label>Cliente *</mat-label>
@@ -66,15 +67,10 @@
                 <mat-option [value]="3">VIP</mat-option>
               </mat-select>
             </mat-form-field>
-
           </div>
-        </div>
 
-        <!-- ── Sección: Datos del pedido ── -->
-        <div class="form-section">
-          <div class="section-label">Datos del pedido</div>
-          <div class="form-grid form-grid--4">
-
+          <!-- Fila 2: Vendedor + Fecha Pedido + Fecha Entrega + Moneda -->
+          <div class="form-grid form-grid--4 row-gap">
             <mat-form-field appearance="outline">
               <mat-label>Vendedor (ID) *</mat-label>
               <mat-icon matPrefix class="prefix-icon">badge</mat-icon>
@@ -102,7 +98,10 @@
                 <mat-option [value]="2">$ Dólares</mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
 
+          <!-- Fila 3: Forma de Pago + Observaciones + Orden de Compra -->
+          <div class="form-grid form-grid--4 row-gap">
             <mat-form-field appearance="outline">
               <mat-label>Forma de Pago</mat-label>
               <mat-select formControlName="idFormaPago">
@@ -123,9 +122,9 @@
               <mat-label>Orden de Compra</mat-label>
               <input matInput formControlName="ordenCompra">
             </mat-form-field>
-
           </div>
 
+          <!-- Fila 4: IGV toggle -->
           <div class="igv-toggle">
             <mat-checkbox formControlName="flagIgvAfecto" (change)="recalcular()">
               Los precios ingresados <strong>incluyen IGV</strong>
@@ -152,58 +151,78 @@
             </div>
           }
 
-          <div formArrayName="detalles" class="items-list">
-            @for (ctrl of detallesArray.controls; track $index; let i = $index) {
-              <div [formGroupName]="i" class="item-row">
-                <span class="item-index">{{ i + 1 }}</span>
+          <!-- Tabla de ítems: header + rows en un wrapper con overflow controlado -->
+          @if (detallesArray.length > 0) {
+            <div class="items-table">
 
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-articulo">
-                  <mat-label>Cód. Artículo</mat-label>
-                  <input matInput type="number" formControlName="idArticulo">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-unidad">
-                  <mat-label>Unidad</mat-label>
-                  <input matInput type="number" formControlName="idUnidad">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-descripcion">
-                  <mat-label>Descripción</mat-label>
-                  <input matInput formControlName="descripcionArticulo">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-qty">
-                  <mat-label>Cant.</mat-label>
-                  <input matInput type="number" formControlName="cantidad" (change)="onLineChange(i)">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-price">
-                  <mat-label>P. Unit.</mat-label>
-                  <input matInput type="number" step="0.01" formControlName="precioUnd" (change)="onLineChange(i)">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-desc">
-                  <mat-label>Descuento</mat-label>
-                  <input matInput type="number" step="0.01" formControlName="descuento" (change)="onLineChange(i)">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-total">
-                  <mat-label>Total</mat-label>
-                  <input matInput type="number" formControlName="precioVenta" readonly>
-                </mat-form-field>
-
-                <div class="item-exon">
-                  <mat-checkbox formControlName="flagExonerado" (change)="recalcular()">
-                    Exon.
-                  </mat-checkbox>
-                </div>
-
-                <button type="button" class="item-delete" matTooltip="Eliminar" (click)="eliminarDetalle(i)">
-                  <mat-icon>delete_outline</mat-icon>
-                </button>
+              <div class="items-header">
+                <span class="ih-num">#</span>
+                <span class="ih-art">Cód. Art.</span>
+                <span class="ih-uni">Unidad</span>
+                <span class="ih-desc">Descripción</span>
+                <span class="ih-qty">Cant.</span>
+                <span class="ih-price">P. Unit.</span>
+                <span class="ih-dsc">Desc.</span>
+                <span class="ih-total">Subtotal</span>
+                <span class="ih-exon">Exon.</span>
+                <span class="ih-del"></span>
               </div>
-            }
-          </div>
+
+              <div formArrayName="detalles" class="items-list">
+                @for (ctrl of detallesArray.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="item-row">
+                    <span class="item-index">{{ i + 1 }}</span>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-articulo">
+                      <mat-label>Cód.</mat-label>
+                      <input matInput type="number" formControlName="idArticulo">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-unidad">
+                      <mat-label>Unid.</mat-label>
+                      <input matInput type="number" formControlName="idUnidad">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-descripcion">
+                      <mat-label>Descripción</mat-label>
+                      <input matInput formControlName="descripcionArticulo">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-qty">
+                      <mat-label>Cant.</mat-label>
+                      <input matInput type="number" formControlName="cantidad" (change)="onLineChange(i)">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-price">
+                      <mat-label>P.Unit.</mat-label>
+                      <input matInput type="number" step="0.01" formControlName="precioUnd" (change)="onLineChange(i)">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-desc">
+                      <mat-label>Desc.</mat-label>
+                      <input matInput type="number" step="0.01" formControlName="descuento" (change)="onLineChange(i)">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="field-total">
+                      <mat-label>Subtotal</mat-label>
+                      <input matInput type="number" formControlName="precioVenta" readonly>
+                    </mat-form-field>
+
+                    <div class="item-exon">
+                      <mat-checkbox formControlName="flagExonerado" (change)="recalcular()">
+                        Exon.
+                      </mat-checkbox>
+                    </div>
+
+                    <button type="button" class="item-delete" matTooltip="Eliminar" (click)="eliminarDetalle(i)">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
         </div>
 
         <!-- ── Totales ── -->

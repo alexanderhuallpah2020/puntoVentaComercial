@@ -2,7 +2,7 @@
 .dialog-shell {
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
+  max-height: 94vh;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   gap: 12px;
@@ -26,8 +26,8 @@
 }
 
 .dialog-icon {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
   background: var(--primary-light);
   display: flex;
@@ -52,8 +52,8 @@
 }
 
 .dialog-subtitle {
-  margin: 3px 0 0;
-  font-size: 12.5px;
+  margin: 2px 0 0;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -72,7 +72,6 @@
   flex-shrink: 0;
 
   mat-icon { font-size: 18px; width: 18px; height: 18px; }
-
   &:hover { background: #FEE2E2; color: #DC2626; border-color: #FECACA; }
   &[disabled] { opacity: 0.4; pointer-events: none; }
 }
@@ -81,10 +80,10 @@
 .dialog-body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 16px 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 
   &::-webkit-scrollbar { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
@@ -105,17 +104,17 @@
 
 /* ── Form sections ── */
 .form-section {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .section-label {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 7px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -124,7 +123,6 @@
   &.with-action {
     border-bottom: none;
     padding-bottom: 4px;
-
     span:first-child { flex: 1; }
   }
 }
@@ -169,6 +167,10 @@
   .col-span-2 { grid-column: span 2; }
 }
 
+.row-gap {
+  margin-bottom: 8px;
+}
+
 .w-100 { width: 100%; }
 
 .prefix-icon {
@@ -179,11 +181,10 @@
 }
 
 .igv-toggle {
-  margin-top: 10px;
+  margin-top: 4px;
+  margin-bottom: 4px;
 
-  mat-checkbox {
-    font-size: 13px;
-  }
+  mat-checkbox { font-size: 13px; }
 }
 
 /* ── Autocomplete option ── */
@@ -223,33 +224,73 @@
   p { margin: 0; font-size: 13.5px; font-weight: 500; }
 }
 
+/* ── Items table wrapper ── */
+.items-table {
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+/* ── Items table header ── */
+.items-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 8px;
+  background: #F1F5F9;
+  border-bottom: 2px solid #CBD5E1;
+
+  span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Header column widths (must match .field-* item-row widths)
+.ih-num   { width: 22px;  flex-shrink: 0; text-align: center; }
+.ih-art   { width: 80px;  flex-shrink: 0; }
+.ih-uni   { width: 62px;  flex-shrink: 0; }
+.ih-desc  { flex: 1 1 0; min-width: 100px; }
+.ih-qty   { width: 68px;  flex-shrink: 0; }
+.ih-price { width: 80px;  flex-shrink: 0; }
+.ih-dsc   { width: 68px;  flex-shrink: 0; }
+.ih-total { width: 78px;  flex-shrink: 0; }
+.ih-exon  { width: 50px;  flex-shrink: 0; text-align: center; }
+.ih-del   { width: 28px;  flex-shrink: 0; }
+
 /* ── Items list ── */
 .items-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 280px;
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 4px 2px;
+  max-height: 340px;
 
-  &::-webkit-scrollbar { width: 4px; }
-  &::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
 }
 
 .item-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  padding: 20px 8px;
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 8px 10px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  border-bottom: 1px solid #F1F5F9;
+  min-width: 0;
+  transition: background 0.12s;
 
-  &:hover {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
-  }
+  &:last-child  { border-bottom: none; }
+  &:nth-child(even) { background: #FAFBFC; }
+  &:hover { background: var(--primary-light) !important; }
 }
 
 .item-index {
@@ -266,22 +307,35 @@
   flex-shrink: 0;
 }
 
-.field-articulo  { width: 100px; flex-shrink: 0; }
-.field-unidad    { width: 75px;  flex-shrink: 0; }
-.field-descripcion { flex: 1; min-width: 120px; }
-.field-qty       { width: 72px;  flex-shrink: 0; }
-.field-price     { width: 88px;  flex-shrink: 0; }
-.field-desc      { width: 88px;  flex-shrink: 0; }
-.field-total     { width: 88px;  flex-shrink: 0; }
+// Field widths — must match .ih-* header widths above
+.field-articulo    { width: 80px; flex-shrink: 0; }
+.field-unidad      { width: 62px; flex-shrink: 0; }
+.field-qty         { width: 68px; flex-shrink: 0; }
+.field-price       { width: 80px; flex-shrink: 0; }
+.field-desc        { width: 68px; flex-shrink: 0; }
+.field-total       { width: 78px; flex-shrink: 0; }
+
+// Description column — takes all remaining space
+.field-descripcion {
+  flex: 1 1 0;
+  min-width: 100px;
+  // Force Material's internal elements not to resist flex shrinking
+  .mat-mdc-form-field-infix { min-width: 0 !important; width: auto !important; }
+  .mdc-text-field { min-width: 0 !important; }
+  input.mat-mdc-input-element { min-width: 0 !important; }
+}
 
 .item-exon {
+  width: 50px;
   flex-shrink: 0;
+  display: flex;
+  justify-content: center;
   mat-checkbox { font-size: 12px; }
 }
 
 .item-delete {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 7px;
   background: transparent;
@@ -301,10 +355,10 @@
 .totals-section {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  margin-top: 14px;
 
   .totals-box {
-    min-width: 280px;
+    min-width: 300px;
   }
 }
 
@@ -314,9 +368,10 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-  padding: 16px 24px;
+  padding: 14px 24px;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  background: var(--bg-card);
 }
 
 /* ── Responsive ── */
@@ -324,5 +379,9 @@
   .form-grid--3,
   .form-grid--4 { grid-template-columns: 1fr 1fr; }
   .col-span-2   { grid-column: span 2; }
-  .item-row { flex-wrap: wrap; }
+
+  .items-header { display: none; }
+  .item-row     { flex-wrap: wrap; gap: 4px; padding: 8px; }
+  .field-articulo, .field-unidad, .field-qty,
+  .field-price, .field-desc, .field-total { flex-shrink: 1; }
 }

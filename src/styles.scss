@@ -106,6 +106,10 @@ html, body {
 .scop-dialog .mat-mdc-dialog-container {
   padding: 0 !important;
 }
+/* Ensure scop-dialog pane is not constrained by CDK default max-width */
+.cdk-overlay-pane.scop-dialog {
+  max-width: 98vw !important;
+}
 
 /* Mat snackbar */
 .mdc-snackbar__surface {
@@ -257,12 +261,13 @@ html, body {
     span:last-child { font-weight: 500; }
 
     &.final {
-      border-top: 1px solid var(--border);
+      border-top: 2px solid var(--border);
       margin-top: 8px;
-      padding-top: 10px;
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--primary);
+      padding-top: 12px;
+      font-weight: 800;
+      font-size: 17px;
+      color: #4F46E5;
+      letter-spacing: -0.2px;
     }
   }
 }
