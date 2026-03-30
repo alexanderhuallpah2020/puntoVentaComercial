@@ -83,13 +83,9 @@ html, body {
   .mdc-notched-outline__trailing {
   border-color: var(--primary) !important;
 }
-.mdc-text-field--focused .mdc-notched-outline__leading,
-.mdc-text-field--focused .mdc-notched-outline__notch,
-.mdc-text-field--focused .mdc-notched-outline__trailing {
-  border-color: var(--primary) !important;
-  border-width: 2px !important;
-}
+
 .mat-mdc-form-field-subscript-wrapper { display: none; }
+/* --------------------------------------------------------------------------------------------------- */
 
 /* Mat dialog */
 .mat-mdc-dialog-container .mdc-dialog__surface {
@@ -115,6 +111,7 @@ html, body {
 .mdc-snackbar__surface {
   border-radius: var(--radius-md) !important;
 }
+
 
 /* Mat paginator */
 .mat-mdc-paginator {
