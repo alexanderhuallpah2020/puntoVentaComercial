@@ -71,7 +71,7 @@ export class PedidosFormDialog implements OnInit {
       distinctUntilChanged(),
       switchMap(val => {
         if (!val || val.length < 2) return of({ items: [] as ClienteResumen[] });
-        return this.clientes.search(val, 10);
+        return this.clientes.search({ nombreCliente: val, pageSize: 10 });
       }),
     ).subscribe(r => this.clienteOpts.set(r.items));
 
@@ -200,7 +200,7 @@ export class PedidosFormDialog implements OnInit {
         });
 
         // Load cliente name via search
-        this.clientes.search('', 1).subscribe();
+        this.clientes.search({ pageSize: 1 }).subscribe();
         // Just set the name directly from data
         this.form.get('clienteNombre')!.setValue(`Cliente #${p.idCliente}`);
 

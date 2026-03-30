@@ -1,0 +1,181 @@
+<div class="cf-shell">
+
+  <!-- ── Header ── -->
+  <div class="cf-header">
+    <div class="cf-header__left">
+      <div class="cf-header__icon">
+        <mat-icon>{{ isEdit ? 'manage_accounts' : 'person_add' }}</mat-icon>
+      </div>
+      <div>
+        <h2 class="cf-header__title">{{ isEdit ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+        <p class="cf-header__sub">{{ isEdit ? 'Modifica los datos del cliente' : 'Completa los datos del nuevo cliente' }}</p>
+      </div>
+    </div>
+    <button class="cf-close" (click)="cancelar()" [disabled]="saving()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="cf-body">
+
+    @if (loading()) {
+      <div class="cf-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Cargando datos…</span>
+      </div>
+    } @else {
+
+      @if (noEditable) {
+        <div class="cf-alert">
+          <mat-icon>info</mat-icon>
+          <span>Este cliente fue creado desde Gestión de Personal y no puede editarse desde el POS.</span>
+        </div>
+      }
+
+      <form [formGroup]="form" autocomplete="off">
+
+        <!-- ══ SECCIÓN: Identificación ══ -->
+        <div class="cf-section">
+          <div class="cf-section__head">
+            <mat-icon class="cf-section__icon">badge</mat-icon>
+            <span class="cf-section__title">Identificación</span>
+          </div>
+
+          <!-- Nombre + Nombre Comercial -->
+          <div class="cf-grid cf-grid--1-1">
+            <div class="cf-field">
+              <label class="cf-label">Razón Social / Nombre <span class="cf-req">*</span></label>
+              <div class="cf-input-wrap">
+                <input class="cf-input" formControlName="nombre" placeholder="Nombre completo o razón social…">
+              </div>
+            </div>
+            <div class="cf-field">
+              <label class="cf-label">Nombre Comercial</label>
+              <div class="cf-input-wrap">
+                <input class="cf-input" formControlName="nombreComercial" placeholder="Nombre comercial opcional…">
+              </div>
+            </div>
+          </div>
+
+          <!-- Tipo Doc + Número Doc + Dígito verificador -->
+          <div class="cf-grid cf-grid--3-5-2">
+            <div class="cf-field">
+              <label class="cf-label">Tipo Documento</label>
+              <select class="cf-select" formControlName="idDocumentoIdentidad">
+                <option [ngValue]="null">Sin documento</option>
+                @for (t of tiposDocs; track t.id) {
+                  <option [ngValue]="t.id">{{ t.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="cf-field">
+              <label class="cf-label">Número de Documento</label>
+              <div class="cf-input-wrap" [class.cf-input-wrap--suffix]="esRuc">
+                <input class="cf-input" formControlName="numDocumento"
+                       [placeholder]="esDni ? '12345678' : esRuc ? '20xxxxxxxxx' : 'Número…'">
+                @if (esRuc) {
+                  <button type="button" class="cf-sunat-btn" matTooltip="Consultar SUNAT"
+                          [disabled]="lookingUp()" (click)="buscarSunat()">
+                    @if (lookingUp()) {
+                      <mat-spinner diameter="14"></mat-spinner>
+                    } @else {
+                      <mat-icon>cloud_download</mat-icon>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+
+            @if (esDni) {
+              <div class="cf-field">
+                <label class="cf-label">Dígito Verificador</label>
+                <div class="cf-input-wrap">
+                  <input class="cf-input cf-input--center" formControlName="codValidadorDoc"
+                         maxlength="1" placeholder="—">
+                </div>
+              </div>
+            } @else {
+              <div></div>
+            }
+          </div>
+        </div>
+
+        <!-- ══ SECCIÓN: Contacto y Ubicación ══ -->
+        <div class="cf-section">
+          <div class="cf-section__head">
+            <mat-icon class="cf-section__icon">location_on</mat-icon>
+            <span class="cf-section__title">Contacto y Ubicación</span>
+          </div>
+
+          <div class="cf-grid cf-grid--1-1">
+            <div class="cf-field">
+              <label class="cf-label">Dirección <span class="cf-req">*</span></label>
+              <div class="cf-input-wrap cf-input-wrap--prefix">
+                <mat-icon class="cf-input-prefix">home</mat-icon>
+                <input class="cf-input" formControlName="direccionLocal" placeholder="Av. / Jr. / Calle…">
+              </div>
+            </div>
+            <div class="cf-field">
+              <label class="cf-label">Teléfono</label>
+              <div class="cf-input-wrap cf-input-wrap--prefix">
+                <mat-icon class="cf-input-prefix">phone</mat-icon>
+                <input class="cf-input" formControlName="telefono1" placeholder="9xxxxxxxx">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ SECCIÓN: Direcciones registradas (solo edición) ══ -->
+        @if (isEdit && clienteLocales().length > 0) {
+          <div class="cf-section cf-section--addresses">
+            <div class="cf-section__head">
+              <mat-icon class="cf-section__icon">business</mat-icon>
+              <span class="cf-section__title">Locales Registrados</span>
+              <span class="cf-badge">{{ clienteLocales().length }}</span>
+            </div>
+
+            <div class="cf-addr-list">
+              @for (loc of clienteLocales(); track loc.idClienteLocal) {
+                <div class="cf-addr-row">
+                  <div class="cf-addr-icon">
+                    <mat-icon>storefront</mat-icon>
+                  </div>
+                  <div class="cf-addr-info">
+                    <span class="cf-addr-dir">{{ loc.direccionLocal }}</span>
+                    @if (loc.telefono1) {
+                      <span class="cf-addr-tel"><mat-icon>phone</mat-icon>{{ loc.telefono1 }}</span>
+                    }
+                  </div>
+                  <span class="cf-badge" [class.cf-badge--inactive]="loc.estado !== 'A'">
+                    {{ loc.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </form>
+    }
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="cf-footer">
+    <button class="cf-btn cf-btn--ghost" (click)="cancelar()" [disabled]="saving()">
+      Cancelar
+    </button>
+    @if (!noEditable) {
+      <button class="cf-btn cf-btn--primary" (click)="guardar()" [disabled]="saving() || loading()">
+        @if (saving()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>{{ isEdit ? 'save' : 'person_add' }}</mat-icon>
+        }
+        {{ isEdit ? 'Guardar cambios' : 'Crear cliente' }}
+      </button>
+    }
+  </div>
+
+</div>

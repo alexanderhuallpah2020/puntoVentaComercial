@@ -1,0 +1,200 @@
+<div class="cl-page">
+
+  <!-- ── Header ── -->
+  <div class="cl-page-header">
+    <div>
+      <h1 class="cl-page-title">Clientes</h1>
+      <p class="cl-page-sub">Gestiona el directorio de clientes</p>
+    </div>
+    <button class="btn-primary" (click)="nuevo()">
+      <mat-icon>person_add</mat-icon>
+      Nuevo Cliente
+    </button>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="cl-stats">
+    <div class="cl-stat">
+      <div class="cl-stat__icon cl-stat__icon--blue"><mat-icon>people</mat-icon></div>
+      <div class="cl-stat__info">
+        <span class="cl-stat__val">{{ total() }}</span>
+        <span class="cl-stat__lbl">Total</span>
+      </div>
+    </div>
+    <div class="cl-stat">
+      <div class="cl-stat__icon cl-stat__icon--green"><mat-icon>check_circle</mat-icon></div>
+      <div class="cl-stat__info">
+        <span class="cl-stat__val">{{ countEstado('A') }}</span>
+        <span class="cl-stat__lbl">Activos</span>
+      </div>
+    </div>
+    <div class="cl-stat">
+      <div class="cl-stat__icon cl-stat__icon--gray"><mat-icon>person_off</mat-icon></div>
+      <div class="cl-stat__info">
+        <span class="cl-stat__val">{{ total() - countEstado('A') }}</span>
+        <span class="cl-stat__lbl">Inactivos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Filters ── -->
+  <div class="card cl-filters">
+    <div class="cl-filters__header">
+      <mat-icon>filter_list</mat-icon>
+      <span>Filtros de búsqueda</span>
+    </div>
+    <div class="cl-filters__fields">
+      <div class="cl-filter-field">
+        <label class="cl-fl">Nombre / Razón Social</label>
+        <div class="cl-input-wrap cl-input-wrap--prefix">
+          <mat-icon class="cl-input-prefix">search</mat-icon>
+          <input class="cl-input" [(ngModel)]="nombreCliente"
+                 (keyup.enter)="buscar()" placeholder="Buscar por nombre…">
+        </div>
+      </div>
+      <div class="cl-filter-field">
+        <label class="cl-fl">Número de Documento</label>
+        <div class="cl-input-wrap">
+          <input class="cl-input" [(ngModel)]="numDocumento"
+                 (keyup.enter)="buscar()" placeholder="DNI / RUC…">
+        </div>
+      </div>
+      <div class="cl-filter-field">
+        <label class="cl-fl">Tipo Documento</label>
+        <select class="cl-select" [(ngModel)]="idDocIdentidad">
+          <option value="">Todos</option>
+          @for (t of tiposDocs; track t.id) {
+            <option [value]="t.id">{{ t.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="cl-filters__actions">
+        <button class="btn-primary" (click)="buscar()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+        <button class="btn-ghost" (click)="limpiar()">
+          <mat-icon>clear</mat-icon> Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="card cl-table-card">
+    <div class="cl-table-header">
+      <div class="cl-table-title">
+        <span>Lista de Clientes</span>
+        @if (total() > 0) {
+          <span class="cl-count-badge">{{ total() }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="cl-table-wrap" [class.is-loading]="loading()">
+
+      @if (loading()) {
+        <div class="cl-loading-overlay">
+          <mat-spinner diameter="36"></mat-spinner>
+          <span>Cargando…</span>
+        </div>
+      }
+
+      <!-- Head -->
+      <div class="cl-thead">
+        <span class="cth cth--cliente">CLIENTE</span>
+        <span class="cth cth--doc">DOCUMENTO</span>
+        <span class="cth cth--dir">DIRECCIÓN</span>
+        <span class="cth cth--tel">TELÉFONO</span>
+        <span class="cth cth--est">ESTADO</span>
+        <span class="cth cth--acc">ACCIONES</span>
+      </div>
+
+      <!-- Rows -->
+      @if (items().length === 0 && !loading()) {
+        <div class="cl-empty">
+          <mat-icon>manage_accounts</mat-icon>
+          <p>No se encontraron clientes</p>
+          <span>Prueba ajustando los filtros o crea un nuevo cliente</span>
+        </div>
+      }
+
+      @for (row of items(); track row.idCliente) {
+        <div class="cl-row" [class.cl-row--inactivo]="row.estadoCliente !== 'A'">
+
+          <div class="cth cth--cliente cl-cell cl-cell--cliente">
+            <div class="cl-avatar">{{ avatarLetras(row.nombre) }}</div>
+            <div class="cl-cliente-info">
+              <span class="cl-nombre">{{ row.nombre }}</span>
+            </div>
+          </div>
+
+          <div class="cth cth--doc cl-cell">
+            @if (row.numDocumento) {
+              <div class="cl-doc">
+                <span class="cl-doc__tipo">{{ tipoDocLabel(row.tipoDocumento) }}</span>
+                <span class="cl-doc__num">{{ row.numDocumento }}</span>
+              </div>
+            } @else {
+              <span class="cl-muted">—</span>
+            }
+          </div>
+
+          <div class="cth cth--dir cl-cell">
+            <span class="cl-text-ellipsis" [matTooltip]="row.direccionLocal ?? ''">
+              {{ row.direccionLocal || '—' }}
+            </span>
+          </div>
+
+          <div class="cth cth--tel cl-cell">
+            <span class="cl-muted">{{ row.telefono1 || '—' }}</span>
+          </div>
+
+          <div class="cth cth--est cl-cell">
+            <span class="cl-badge" [class.cl-badge--activo]="row.estadoCliente === 'A'"
+                                   [class.cl-badge--inactivo]="row.estadoCliente !== 'A'">
+              <span class="cl-badge__dot"></span>
+              {{ estadoLabel(row.estadoCliente) }}
+            </span>
+          </div>
+
+          <div class="cth cth--acc cl-cell cl-cell--acc">
+            <button class="cl-action-btn cl-action-btn--edit"
+                    matTooltip="Editar cliente" (click)="editar(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+
+        </div>
+      }
+
+      <!-- Paginador -->
+      @if (total() > 0) {
+        <div class="cl-paginator">
+          <span class="cl-pag-info">
+            Mostrando {{ pageStart() }}–{{ pageEnd() }} de {{ total() }} resultados
+          </span>
+          <div class="cl-pag-controls">
+            <select class="cl-page-size" [value]="pageSize()" (change)="onPageSizeChange($event)">
+              <option value="10">10 / pág</option>
+              <option value="20">20 / pág</option>
+              <option value="50">50 / pág</option>
+            </select>
+            <button class="cl-pag-btn" [disabled]="page() <= 1" (click)="goPage(page() - 1)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            @for (p of pageNumbers(); track p) {
+              <button class="cl-pag-btn cl-pag-num" [class.active]="p === page()" (click)="goPage(p)">
+                {{ p }}
+              </button>
+            }
+            <button class="cl-pag-btn" [disabled]="page() >= totalPages()" (click)="goPage(page() + 1)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>
