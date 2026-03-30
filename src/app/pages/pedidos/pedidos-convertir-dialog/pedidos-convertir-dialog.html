@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>Convertir a Venta</h2>
+
+<mat-dialog-content>
+  <p class="importe-label">
+    Total del pedido: <strong>{{ data.importeTotal | number:'1.2-2' }}</strong>
+  </p>
+
+  <form [formGroup]="form" autocomplete="off">
+    <div class="row g-2">
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Tipo Documento *</mat-label>
+          <mat-select formControlName="idTipoDocumento">
+            <mat-option [value]="1">Factura</mat-option>
+            <mat-option [value]="3">Boleta</mat-option>
+            <mat-option [value]="29">Pedido</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Serie *</mat-label>
+          <input matInput formControlName="numSerieA" placeholder="F001">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Estación (ID) *</mat-label>
+          <input matInput type="number" formControlName="idEstacionTrabajo">
+        </mat-form-field>
+      </div>
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Tipo Cambio *</mat-label>
+          <input matInput type="number" step="0.001" formControlName="tipoCambio">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Forma Pago *</mat-label>
+          <mat-select formControlName="idFormaPago">
+            <mat-option [value]="1">Contado</mat-option>
+            <mat-option [value]="2">Crédito</mat-option>
+            <mat-option [value]="3">Tarjeta</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Subdiario</mat-label>
+          <input matInput type="number" formControlName="idSubdiario">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Importe Pagado *</mat-label>
+          <input matInput type="number" step="0.01" formControlName="importePagado">
+        </mat-form-field>
+      </div>
+      <div class="col-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Vuelto</mat-label>
+          <input matInput type="number" formControlName="importeVuelto" readonly>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()" [disabled]="saving()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="convertir()"
+          [disabled]="saving()">
+    @if (saving()) {
+      <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner>
+    }
+    Convertir a Venta
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,230 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar Pedido' : 'Nuevo Pedido' }}</h2>
+
+<mat-dialog-content>
+
+  @if (loading()) {
+    <div style="display:flex;justify-content:center;padding:40px">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="form" autocomplete="off">
+
+      <!-- ── Cabecera ── -->
+      <div class="dialog-section-title">Datos generales</div>
+
+      <div class="row g-2">
+        <div class="col-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Cliente *</mat-label>
+            <input matInput formControlName="clienteNombre"
+                   [matAutocomplete]="autoCliente" placeholder="Buscar cliente...">
+            <mat-autocomplete #autoCliente [displayWith]="displayCliente"
+                              (optionSelected)="selectCliente($event.option.value)">
+              @for (c of clienteOpts(); track c.idCliente) {
+                <mat-option [value]="c">
+                  <span class="opt-nombre">{{ c.nombre }}</span>
+                  <span class="opt-doc"> · {{ c.numDocumento }}</span>
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (form.get('idCliente')?.invalid && form.get('idCliente')?.touched) {
+              <mat-error>Seleccione un cliente</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Tipo Cliente</mat-label>
+            <mat-select formControlName="idTipoCliente">
+              <mat-option [value]="1">Regular</mat-option>
+              <mat-option [value]="2">Mayorista</mat-option>
+              <mat-option [value]="3">VIP</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Vendedor (ID) *</mat-label>
+            <input matInput type="number" formControlName="idTrabajador">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fecha Pedido *</mat-label>
+            <input matInput [matDatepicker]="pickerPedido" formControlName="fechaPedido">
+            <mat-datepicker-toggle matIconSuffix [for]="pickerPedido"></mat-datepicker-toggle>
+            <mat-datepicker #pickerPedido></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Fecha Entrega *</mat-label>
+            <input matInput [matDatepicker]="pickerEntrega" formControlName="fechaEntrega">
+            <mat-datepicker-toggle matIconSuffix [for]="pickerEntrega"></mat-datepicker-toggle>
+            <mat-datepicker #pickerEntrega></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Moneda</mat-label>
+            <mat-select formControlName="idTipoMoneda">
+              <mat-option [value]="1">S/ Soles</mat-option>
+              <mat-option [value]="2">$ Dólares</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Forma Pago</mat-label>
+            <mat-select formControlName="idFormaPago">
+              <mat-option [value]="1">Contado</mat-option>
+              <mat-option [value]="2">Crédito</mat-option>
+              <mat-option [value]="3">Tarjeta</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-8">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Observaciones</mat-label>
+            <input matInput formControlName="observaciones">
+          </mat-form-field>
+        </div>
+        <div class="col-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Orden de Compra</mat-label>
+            <input matInput formControlName="ordenCompra">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <mat-checkbox formControlName="flagIgvAfecto" (change)="recalcular()">
+          Precios incluyen IGV
+        </mat-checkbox>
+      </div>
+
+      <!-- ── Detalles ── -->
+      <div class="dialog-section-title d-flex justify-content-between align-items-center">
+        <span>Ítems</span>
+        <button mat-stroked-button color="primary" type="button" (click)="agregarDetalle()">
+          <mat-icon>add</mat-icon> Agregar
+        </button>
+      </div>
+
+      <div formArrayName="detalles" class="detalles-wrapper">
+        @if (detallesArray.length === 0) {
+          <p class="text-muted text-center py-3">Sin ítems. Haga clic en "Agregar".</p>
+        }
+        @for (ctrl of detallesArray.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="detalle-row row g-1 align-items-center mb-1">
+            <div class="col-auto" style="width:36px">
+              <span class="row-num">{{ i + 1 }}</span>
+            </div>
+            <div class="col" style="min-width:80px;max-width:100px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Artículo</mat-label>
+                <input matInput type="number" formControlName="idArticulo">
+              </mat-form-field>
+            </div>
+            <div class="col" style="min-width:80px;max-width:80px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Unidad</mat-label>
+                <input matInput type="number" formControlName="idUnidad">
+              </mat-form-field>
+            </div>
+            <div class="col" style="min-width:160px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Descripción</mat-label>
+                <input matInput formControlName="descripcionArticulo">
+              </mat-form-field>
+            </div>
+            <div class="col" style="max-width:90px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="cantidad"
+                       (change)="onLineChange(i)">
+              </mat-form-field>
+            </div>
+            <div class="col" style="max-width:100px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>P. Unit.</mat-label>
+                <input matInput type="number" formControlName="precioUnd"
+                       (change)="onLineChange(i)">
+              </mat-form-field>
+            </div>
+            <div class="col" style="max-width:100px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Descuento</mat-label>
+                <input matInput type="number" formControlName="descuento"
+                       (change)="onLineChange(i)">
+              </mat-form-field>
+            </div>
+            <div class="col" style="max-width:110px">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
+                <mat-label>Total</mat-label>
+                <input matInput type="number" formControlName="precioVenta" readonly>
+              </mat-form-field>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+              <mat-checkbox formControlName="flagExonerado" matTooltip="Exonerado"
+                            (change)="recalcular()">Exon.</mat-checkbox>
+            </div>
+            <div class="col-auto">
+              <button mat-icon-button color="warn" type="button" matTooltip="Eliminar"
+                      (click)="eliminarDetalle(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── Totales ── -->
+      <div class="row justify-content-end mt-2">
+        <div class="col-12 col-sm-5">
+          <div class="totals-box">
+            <div class="total-row">
+              <span>Valor Afecto (base)</span>
+              <span>{{ valorAfecto | number:'1.2-2' }}</span>
+            </div>
+            <div class="total-row">
+              <span>IGV (18%)</span>
+              <span>{{ igv | number:'1.2-2' }}</span>
+            </div>
+            @if (valorExonerado > 0) {
+              <div class="total-row">
+                <span>Exonerado</span>
+                <span>{{ valorExonerado | number:'1.2-2' }}</span>
+              </div>
+            }
+            <div class="total-row total-final">
+              <span>TOTAL</span>
+              <span>{{ importeTotal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  }
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()" [disabled]="saving()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardar()"
+          [disabled]="saving() || loading()">
+    @if (saving()) {
+      <mat-spinner diameter="18" style="display:inline-block;margin-right:8px"></mat-spinner>
+    }
+    {{ isEdit ? 'Actualizar' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

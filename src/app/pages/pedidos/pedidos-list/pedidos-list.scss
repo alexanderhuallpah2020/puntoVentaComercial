@@ -1,0 +1,11 @@
+.col-cliente {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-end {
+  justify-content: flex-end;
+  text-align: right;
+}
